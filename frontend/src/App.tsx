@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -6,10 +7,13 @@ import DashboardPage from './pages/DashboardPage';
 import EntriesPage from './pages/EntriesPage';
 import EntryDetailPage from './pages/EntryDetailPage';
 import EntryEditPage from './pages/EntryEditPage';
+import EntryCreatePage from './pages/EntryCreatePage';
 import ProjectsPage from './pages/ProjectsPage';
 import TagsPage from './pages/TagsPage';
 import CalendarPage from './pages/CalendarPage';
+import SettingsPage from './pages/SettingsPage';
 import Layout from './components/Layout/Layout';
+import LookingAheadReminder from './components/LookingAheadReminder';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -29,9 +33,33 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function App() {
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const [showReminder, setShowReminder] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    // Check if reminder was already dismissed today
+    const today = new Date().toISOString().split('T')[0];
+    const dismissedDate = localStorage.getItem('lookingAheadReminderDismissed');
+    
+    // Show reminder if it hasn't been dismissed today
+    if (dismissedDate !== today) {
+      setShowReminder(true);
+    }
+  }, [isAuthenticated]);
+
+  const handleDismissReminder = () => {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem('lookingAheadReminderDismissed', today);
+    setShowReminder(false);
+  };
+
   return (
-    <AuthProvider>
+    <>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -44,17 +72,30 @@ function App() {
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/entries" element={<EntriesPage />} />
+                  <Route path="/entries/new" element={<EntryCreatePage />} />
                   <Route path="/entries/:id" element={<EntryDetailPage />} />
                   <Route path="/entries/:id/edit" element={<EntryEditPage />} />
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/tags" element={<TagsPage />} />
                   <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
           }
         />
       </Routes>
+      {showReminder && isAuthenticated && (
+        <LookingAheadReminder onDismiss={handleDismissReminder} />
+      )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

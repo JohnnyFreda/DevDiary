@@ -1,19 +1,28 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { entriesApi, EntryCreate } from '../api/entries';
+import { entriesApi, EntryCreate, Attachment } from '../api/entries';
 import { useQuery } from '@tanstack/react-query';
 import { projectsApi } from '../api/projects';
 import MoodSelector from './MoodSelector';
 import ProjectSelector from './ProjectSelector';
 import TagInput from './TagInput';
+import MarkdownEditor from './MarkdownEditor';
+import AttachmentsInput from './AttachmentsInput';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
-export default function QuickEntryForm() {
+interface QuickEntryFormProps {
+  onClose?: () => void;
+}
+
+export default function QuickEntryForm({ onClose }: QuickEntryFormProps) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [lookingAhead, setLookingAhead] = useState('');
   const [mood, setMood] = useState(3);
   const [projectId, setProjectId] = useState<number | undefined>();
   const [tags, setTags] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const queryClient = useQueryClient();
 
   const { data: projects } = useQuery({
@@ -29,9 +38,14 @@ export default function QuickEntryForm() {
       queryClient.invalidateQueries({ queryKey: ['calendar'] });
       setTitle('');
       setBody('');
+      setLookingAhead('');
       setMood(3);
       setProjectId(undefined);
       setTags([]);
+      setAttachments([]);
+      if (onClose) {
+        onClose();
+      }
     },
   });
 
@@ -41,15 +55,30 @@ export default function QuickEntryForm() {
       date,
       title: title || undefined,
       body: body || undefined,
+      looking_ahead: lookingAhead || undefined,
       mood,
       project_id: projectId,
       tags,
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Quick Entry</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Quick Entry</h2>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="Close"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+        )}
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
       
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -66,26 +95,13 @@ export default function QuickEntryForm() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Title (optional)
+          Title
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="What did you work on today?"
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Notes
-        </label>
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Write about your day..."
-          rows={4}
+          placeholder="Entry title"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         />
       </div>
@@ -95,6 +111,26 @@ export default function QuickEntryForm() {
           Mood
         </label>
         <MoodSelector value={mood} onChange={setMood} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Body (Markdown)
+        </label>
+        <MarkdownEditor value={body} onChange={setBody} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Looking Ahead
+        </label>
+        <input
+          type="text"
+          value={lookingAhead}
+          onChange={(e) => setLookingAhead(e.target.value)}
+          placeholder="let's tackle this tomorrow"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        />
       </div>
 
       <div>
@@ -115,6 +151,10 @@ export default function QuickEntryForm() {
         <TagInput value={tags} onChange={setTags} />
       </div>
 
+      <div>
+        <AttachmentsInput value={attachments} onChange={setAttachments} />
+      </div>
+
       <button
         type="submit"
         disabled={createMutation.isPending}
@@ -122,7 +162,8 @@ export default function QuickEntryForm() {
       >
         {createMutation.isPending ? 'Saving...' : 'Save Entry'}
       </button>
-    </form>
+      </form>
+    </div>
   );
 }
 

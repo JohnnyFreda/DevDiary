@@ -13,6 +13,7 @@ class Entry(Base):
     date = Column(Date, nullable=False, index=True)
     title = Column(String, nullable=True)
     body = Column(Text, nullable=True)
+    looking_ahead = Column(Text, nullable=True)  # Tasks/projects for tomorrow
     mood = Column(Integer, nullable=False)  # 1-5
     focus_score = Column(Integer, nullable=True)  # 1-10
     created_at = Column(DateTime(timezone=True), server_default=func.now())

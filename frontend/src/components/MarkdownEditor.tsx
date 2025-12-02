@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface MarkdownEditorProps {
   value: string;
@@ -8,9 +8,87 @@ interface MarkdownEditorProps {
 
 export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<'edit' | 'preview' | 'split'>('edit');
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Handle image pasting (JPG, PNG, GIF, WebP, etc.)
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      // Check if we're pasting into the editor
+      const target = e.target as HTMLElement;
+      if (!editorRef.current?.contains(target)) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        
+        // Check if the pasted item is an image (including JPG/JPEG)
+        const isImage = item.type.indexOf('image') !== -1;
+        const isJpeg = item.type === 'image/jpeg' || item.type === 'image/jpg';
+        const isPng = item.type === 'image/png';
+        const isGif = item.type === 'image/gif';
+        const isWebP = item.type === 'image/webp';
+        
+        if (isImage || isJpeg || isPng || isGif || isWebP) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const file = item.getAsFile();
+          if (!file) continue;
+
+          // Limit file size to 10MB to avoid performance issues with base64
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          if (file.size > maxSize) {
+            alert(`Image is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Please use an image smaller than 10MB.`);
+            continue;
+          }
+
+          // Show loading indicator (optional - could add a toast notification)
+          const imageName = file.name || `pasted-image.${item.type.split('/')[1] || 'jpg'}`;
+          
+          // Convert image to base64 data URL
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target?.result as string;
+            
+            // Create markdown image syntax
+            // For JPG/JPEG, we'll use the data URL directly
+            const imageMarkdown = `![${imageName}](${dataUrl})`;
+            
+            // Insert the image markdown at the current cursor position
+            // If we can't determine cursor position, append to the end
+            const currentValue = value || '';
+            const separator = currentValue && !currentValue.endsWith('\n') ? '\n\n' : '\n';
+            const newValue = currentValue + separator + imageMarkdown;
+            onChange(newValue);
+          };
+          reader.onerror = () => {
+            alert('Failed to process image. Please try again.');
+          };
+          reader.readAsDataURL(file);
+          break;
+        }
+      }
+    };
+
+    // Attach paste event listener to document to catch all paste events
+    document.addEventListener('paste', handlePaste, true);
+    
+    return () => {
+      document.removeEventListener('paste', handlePaste, true);
+    };
+  }, [value, onChange]);
 
   return (
-    <div className="w-full" data-color-mode="light">
+    <div 
+      ref={editorRef}
+      className="w-full" 
+      data-color-mode="light"
+      onPaste={(e) => {
+        // This will be handled by the useEffect listener
+      }}
+    >
       <div className="mb-2 flex gap-2">
         <button
           type="button"

@@ -85,6 +85,7 @@ async def create_entry(
         date=entry_data.date,
         title=entry_data.title,
         body=entry_data.body,
+        looking_ahead=entry_data.looking_ahead,
         mood=entry_data.mood,
         focus_score=entry_data.focus_score
     )
@@ -141,6 +142,8 @@ async def update_entry(
         entry.title = entry_data.title
     if entry_data.body is not None:
         entry.body = entry_data.body
+    if entry_data.looking_ahead is not None:
+        entry.looking_ahead = entry_data.looking_ahead
     if entry_data.mood is not None:
         entry.mood = entry_data.mood
     if entry_data.focus_score is not None:

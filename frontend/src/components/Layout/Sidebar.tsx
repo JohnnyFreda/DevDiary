@@ -7,6 +7,7 @@ import {
   TagIcon,
   CalendarIcon,
   Bars3Icon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -15,6 +16,7 @@ const navigation = [
   { name: 'Projects', href: '/projects', icon: FolderIcon },
   { name: 'Tags', href: '/tags', icon: TagIcon },
   { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
+  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
 interface SidebarProps {

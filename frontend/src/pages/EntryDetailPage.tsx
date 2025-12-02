@@ -88,8 +88,19 @@ export default function EntryDetailPage() {
         </div>
 
         {entry.body && (
-          <div className="prose dark:prose-invert max-w-none">
+          <div className="prose dark:prose-invert max-w-none mb-6">
             <Markdown>{entry.body}</Markdown>
+          </div>
+        )}
+
+        {entry.looking_ahead && (
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+              Looking Ahead
+            </h2>
+            <div className="prose dark:prose-invert max-w-none">
+              <Markdown>{entry.looking_ahead}</Markdown>
+            </div>
           </div>
         )}
       </div>

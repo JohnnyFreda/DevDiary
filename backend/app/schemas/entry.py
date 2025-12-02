@@ -7,6 +7,7 @@ class EntryCreate(BaseModel):
     date: date
     title: Optional[str] = None
     body: Optional[str] = None
+    looking_ahead: Optional[str] = None
     project_id: Optional[int] = None
     tags: List[str] = []
     mood: int
@@ -17,6 +18,7 @@ class EntryUpdate(BaseModel):
     date: Optional[date] = None
     title: Optional[str] = None
     body: Optional[str] = None
+    looking_ahead: Optional[str] = None
     project_id: Optional[int] = None
     tags: Optional[List[str]] = None
     mood: Optional[int] = None
@@ -47,6 +49,7 @@ class EntryResponse(BaseModel):
     date: date
     title: Optional[str] = None
     body: Optional[str] = None
+    looking_ahead: Optional[str] = None
     mood: int
     focus_score: Optional[int] = None
     created_at: datetime

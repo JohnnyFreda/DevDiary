@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Entry, EntryCreate, EntryUpdate } from '../api/entries';
-import { useQuery } from '@tanstack/react-query';
-import { projectsApi } from '../api/projects';
-import MoodSelector from './MoodSelector';
-import ProjectSelector from './ProjectSelector';
-import TagInput from './TagInput';
-import MarkdownEditor from './MarkdownEditor';
+import { useState } from "react";
+import { Entry, EntryCreate, EntryUpdate, Attachment } from "../api/entries";
+import { useQuery } from "@tanstack/react-query";
+import { projectsApi } from "../api/projects";
+import MoodSelector from "./MoodSelector";
+import ProjectSelector from "./ProjectSelector";
+import TagInput from "./TagInput";
+import MarkdownEditor from "./MarkdownEditor";
+import AttachmentsInput from "./AttachmentsInput";
 
 interface EntryFormProps {
   entry?: Entry;
@@ -14,16 +15,31 @@ interface EntryFormProps {
   isLoading?: boolean;
 }
 
-export default function EntryForm({ entry, onSubmit, onCancel, isLoading }: EntryFormProps) {
-  const [date, setDate] = useState(entry?.date || new Date().toISOString().split('T')[0]);
-  const [title, setTitle] = useState(entry?.title || '');
-  const [body, setBody] = useState(entry?.body || '');
+export default function EntryForm({
+  entry,
+  onSubmit,
+  onCancel,
+  isLoading,
+}: EntryFormProps) {
+  const [date, setDate] = useState(
+    entry?.date || new Date().toISOString().split("T")[0]
+  );
+  const [title, setTitle] = useState(entry?.title || "");
+  const [body, setBody] = useState(entry?.body || "");
+  const [lookingAhead, setLookingAhead] = useState(entry?.looking_ahead || "");
   const [mood, setMood] = useState(entry?.mood || 3);
-  const [projectId, setProjectId] = useState<number | undefined>(entry?.project_id);
-  const [tags, setTags] = useState<string[]>(entry?.tags.map(t => t.name) || []);
+  const [projectId, setProjectId] = useState<number | undefined>(
+    entry?.project_id
+  );
+  const [tags, setTags] = useState<string[]>(
+    entry?.tags.map((t) => t.name) || []
+  );
+  const [attachments, setAttachments] = useState<Attachment[]>(
+    entry?.attachments || []
+  );
 
   const { data: projects } = useQuery({
-    queryKey: ['projects'],
+    queryKey: ["projects"],
     queryFn: projectsApi.getAll,
   });
 
@@ -33,9 +49,11 @@ export default function EntryForm({ entry, onSubmit, onCancel, isLoading }: Entr
       date,
       title: title || undefined,
       body: body || undefined,
+      looking_ahead: lookingAhead || undefined,
       mood,
       project_id: projectId,
       tags,
+      attachments: attachments.length > 0 ? attachments : undefined,
     };
     await onSubmit(data);
   };
@@ -70,29 +88,40 @@ export default function EntryForm({ entry, onSubmit, onCancel, isLoading }: Entr
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Mood
+        </label>
+        <MoodSelector value={mood} onChange={setMood} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Body (Markdown)
         </label>
         <MarkdownEditor value={body} onChange={setBody} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Mood
-          </label>
-          <MoodSelector value={mood} onChange={setMood} />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Looking Ahead
+        </label>
+        <input
+          type="text"
+          value={lookingAhead}
+          onChange={(e) => setLookingAhead(e.target.value)}
+          placeholder="let's tackle this tomorrow"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        />
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Project
-          </label>
-          <ProjectSelector
-            projects={projects || []}
-            value={projectId}
-            onChange={setProjectId}
-          />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Project
+        </label>
+        <ProjectSelector
+          projects={projects || []}
+          value={projectId}
+          onChange={setProjectId}
+        />
       </div>
 
       <div>
@@ -102,13 +131,17 @@ export default function EntryForm({ entry, onSubmit, onCancel, isLoading }: Entr
         <TagInput value={tags} onChange={setTags} />
       </div>
 
+      <div>
+        <AttachmentsInput value={attachments} onChange={setAttachments} />
+      </div>
+
       <div className="flex gap-4">
         <button
           type="submit"
           disabled={isLoading}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
         >
-          {isLoading ? 'Saving...' : entry ? 'Update Entry' : 'Create Entry'}
+          {isLoading ? "Saving..." : entry ? "Update Entry" : "Create Entry"}
         </button>
         {onCancel && (
           <button
@@ -123,4 +156,3 @@ export default function EntryForm({ entry, onSubmit, onCancel, isLoading }: Entr
     </form>
   );
 }
-

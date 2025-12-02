@@ -13,6 +13,7 @@ export interface Entry {
   date: string;
   title?: string;
   body?: string;
+  looking_ahead?: string;
   mood: number | null;
   focus_score?: number | null;
   created_at: string;
