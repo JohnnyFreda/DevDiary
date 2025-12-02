@@ -1,0 +1,153 @@
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+// Use relative path to leverage Vite proxy (avoids CORS issues)
+// The proxy in vite.config.ts forwards /api to http://localhost:8000
+// If VITE_API_URL is set to a full URL, use it directly (for production)
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_URL = API_BASE ? `${API_BASE}/api/v1` : '/api/v1';
+
+// Create axios instance
+export const apiClient = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // Important for cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000, // 10 second timeout
+});
+
+// Store access token in memory
+let accessToken: string | null = null;
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+  console.log('Token set:', token ? `Yes (length: ${token.length})` : 'No (null)');
+};
+
+export const getAccessToken = () => accessToken;
+
+// Request interceptor: add access token to headers
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+      if (config.url?.includes('/auth/me')) {
+        console.log('Sending /auth/me request with token in header');
+      }
+    } else {
+      // Log when we don't have a token (for debugging)
+      if (config.url?.includes('/auth/me')) {
+        console.warn('Request to /auth/me without access token - token is null');
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor: handle token refresh on 401
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: any) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: AxiosError | null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Log errors for debugging
+    if (error.response) {
+      console.error('API Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('Network Error:', error.request);
+    } else {
+      console.error('Error:', error.message);
+    }
+
+    // Don't try to refresh token for auth endpoints (login, register, refresh, me)
+    // /auth/me is expected to fail on first load when user is not authenticated
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/login') || 
+                           originalRequest.url?.includes('/auth/register') ||
+                           originalRequest.url?.includes('/auth/refresh') ||
+                           originalRequest.url?.includes('/auth/me');
+
+    // Handle 401 or 403 (403 can happen when no token is provided)
+    const isUnauthorized = error.response?.status === 401 || error.response?.status === 403;
+    
+    // Only try to refresh if:
+    // 1. We have an access token stored (meaning user was logged in)
+    // 2. It's not an auth endpoint
+    // 3. We haven't already tried to refresh
+    const shouldTryRefresh = isUnauthorized && 
+                             !originalRequest._retry && 
+                             !isAuthEndpoint &&
+                             accessToken !== null; // Only refresh if we had a token
+    
+    if (shouldTryRefresh) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Attempt to refresh token
+        // Use apiClient to leverage proxy and maintain consistency
+        const response = await apiClient.post('/auth/refresh', {});
+        const { access_token } = response.data;
+        setAccessToken(access_token);
+        processQueue(null, access_token);
+
+        // Retry original request
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        }
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError as AxiosError, null);
+        setAccessToken(null);
+        // Only redirect to login if we're not already on login/register page
+        // This prevents infinite reload loops
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // For auth endpoints that fail (like /auth/me on first load), just reject without redirect
+    return Promise.reject(error);
+  }
+);
+

@@ -1,0 +1,410 @@
+DEV DIARY APP — DESIGN DOCUMENT (FOR CURSOR)
+Version: 1.0
+Purpose:
+A full-stack developer diary app for logging daily progress, tracking mood/tags/projects, and providing a professional-grade portfolio project.
+
+============================================================
+1. PROJECT OVERVIEW
+============================================================
+The Dev Diary App is a full-stack web application where users can:
+- Log daily development entries
+- Assign mood, project, tags, and optional title
+- Browse entries in list, detail, and calendar form
+- View basic insights (streak, entry count, mood trends)
+- Securely store private entries with user authentication
+
+This app should be personal, functional, and showcase:
+- Backend engineering
+- Frontend design
+- Auth
+- Data modeling
+- Deployment
+- Optional analytics/data viz
+
+============================================================
+2. TECH STACK
+============================================================
+
+Frontend:
+- React
+- TypeScript
+- Vite (preferred)
+- TailwindCSS
+- React Query
+- React Router
+- Markdown editor (e.g. react-markdown or similar)
+
+Backend:
+- FastAPI
+- Python
+- SQLAlchemy + Alembic
+- Postgres
+- JWT Authentication
+- Pydantic
+
+Deployment:
+- Frontend: Vercel or Netlify
+- Backend: Render or Railway
+- DB: Managed Postgres on Render/Railway
+
+============================================================
+3. HIGH-LEVEL ARCHITECTURE
+============================================================
+Browser (React/TS)
+    ⇅  HTTPS (JWT cookie or Authorization header)
+FastAPI Backend
+    ⇅  SQLAlchemy ORM
+Postgres Database
+
+React Query handles server state.
+Auth stored in httpOnly cookie or memory + refresh token.
+
+============================================================
+4. USER STORIES
+============================================================
+
+Auth:
+- User can register with email + password.
+- User can log in and maintain session.
+- User data is private per account.
+
+Entries:
+- User can quickly create a daily entry.
+- User can edit or delete entries.
+- User can assign tags, mood, project, title.
+- User can browse entries chronologically.
+- User can filter by project or tag.
+- User can search by text.
+
+Calendar:
+- User can view month grid of entries.
+- Days show entry counts and mood intensity.
+- Clicking a day shows entries for that date.
+- User can add entry for selected date.
+
+Insights:
+- User can see streak, entry count, mood trend.
+
+============================================================
+5. DATA MODELS (SQLAlchemy)
+============================================================
+
+User:
+- id (PK)
+- email (unique)
+- password_hash
+- created_at
+- updated_at
+
+Project:
+- id (PK)
+- user_id (FK -> users.id)
+- name
+- description (optional)
+- created_at
+
+Entry:
+- id (PK)
+- user_id (FK -> users.id)
+- project_id (FK -> projects.id, nullable)
+- date (date)
+- title (optional)
+- body (text, markdown allowed)
+- mood (int 1–5)
+- focus_score (optional int 1–10)
+- created_at
+- updated_at
+
+Tag:
+- id (PK)
+- user_id
+- name (unique per user)
+
+EntryTag (many-to-many):
+- entry_id (FK -> entries.id)
+- tag_id (FK -> tags.id)
+PRIMARY KEY (entry_id, tag_id)
+
+============================================================
+6. API SPECIFICATION
+============================================================
+Base URL: /api/v1
+
+---------------------
+AUTH
+---------------------
+POST /auth/register
+POST /auth/login
+POST /auth/logout
+GET  /auth/me
+
+---------------------
+ENTRIES
+---------------------
+GET    /entries?project_id=&tag=&search=&date_from=&date_to=
+POST   /entries
+GET    /entries/{id}
+PUT    /entries/{id}
+DELETE /entries/{id}
+
+POST /entries payload:
+{
+  "date": "2025-12-02",
+  "title": "Wrote FastAPI endpoints",
+  "body": "Today I implemented user auth...",
+  "project_id": 3,
+  "tags": ["fastapi", "auth"],
+  "mood": 4,
+  "focus_score": 7
+}
+
+---------------------
+PROJECTS
+---------------------
+GET    /projects
+POST   /projects
+PUT    /projects/{id}
+DELETE /projects/{id}
+
+---------------------
+TAGS
+---------------------
+GET    /tags
+POST   /tags
+DELETE /tags/{id}
+
+---------------------
+INSIGHTS (Phase 2)
+---------------------
+GET /insights/summary
+GET /insights/mood-trend?days=30
+
+============================================================
+7. CALENDAR API SPECIFICATION
+============================================================
+
+New endpoint:
+GET /calendar/month?year=YYYY&month=MM&project_id=&tag=
+
+Response:
+{
+  "year": 2026,
+  "month": 4,
+  "days": [
+    {
+      "date": "2026-04-01",
+      "entry_count": 2,
+      "average_mood": 4.0
+    },
+    {
+      "date": "2026-04-02",
+      "entry_count": 0,
+      "average_mood": null
+    }
+  ]
+}
+
+To load entries for a selected date:
+GET /entries?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
+
+No DB schema changes needed; this endpoint aggregates entries by date.
+
+============================================================
+8. FRONTEND ROUTES
+============================================================
+
+/login
+/register
+/dashboard
+/entries
+/entries/:id
+/entries/:id/edit
+/projects
+/tags
+/calendar    ← new
+
+============================================================
+9. COMPONENT HIERARCHY
+============================================================
+
+App
+ ├── Layout
+ │     ├── Sidebar
+ │     └── Navbar
+ │
+ ├── Pages
+ │     ├── LoginPage
+ │     ├── RegisterPage
+ │     ├── DashboardPage
+ │     │     ├── QuickEntryForm
+ │     │     ├── StreakWidget
+ │     │     ├── RecentEntriesList
+ │     │
+ │     ├── EntriesPage
+ │     │     ├── EntryFilters
+ │     │     ├── EntryList
+ │     │
+ │     ├── EntryDetailPage
+ │     ├── EntryEditPage
+ │
+ │     ├── ProjectsPage
+ │     ├── TagsPage
+ │
+ │     ├── CalendarPage
+ │           ├── CalendarHeader
+ │           │      ├── MonthNavigator (prev, next, today)
+ │           │      ├── ViewToggle (month/week — week optional)
+ │           │      ├── ProjectFilter
+ │           │      ├── TagFilter
+ │           ├── CalendarGrid
+ │           │      └── CalendarDayCell[]
+ │           └── DayDetailsPanel (or modal with entries for selected date)
+
+Components (shared):
+- EntryCard
+- EntryForm
+- MoodSelector
+- ProjectSelector
+- TagInput
+- MarkdownEditor + Preview
+
+============================================================
+10. FOLDER STRUCTURE
+============================================================
+
+Frontend:
+frontend/
+  src/
+    api/
+      auth.ts
+      entries.ts
+      projects.ts
+      tags.ts
+      calendar.ts
+    components/
+    pages/
+    hooks/
+    context/
+    styles/
+    App.tsx
+    main.tsx
+
+Backend:
+backend/
+  app/
+    main.py
+    api/
+      auth.py
+      entries.py
+      projects.py
+      tags.py
+      insights.py
+      calendar.py
+    core/
+      config.py
+      security.py
+      auth.py
+    db/
+      base.py
+      session.py
+      models/
+         user.py
+         entry.py
+         project.py
+         tag.py
+         entry_tag.py
+    schemas/
+      user.py
+      entry.py
+      project.py
+      tag.py
+      calendar.py
+    services/
+      entries.py
+      insights.py
+      calendar.py
+    tests/
+  alembic/
+  requirements.txt
+
+============================================================
+11. UX FLOW SUMMARY
+============================================================
+
+Login Flow:
+1. User logs in.
+2. Server returns JWT (cookie or token).
+3. Frontend loads /auth/me.
+4. Redirect to dashboard.
+
+Entry Flow:
+1. User writes entry in Quick Entry form.
+2. Entry saved via POST /entries.
+3. Dashboard updates recent entries + streak.
+
+Browsing Flow:
+1. User goes to /entries.
+2. User filters by project/tag/search.
+3. Click entry → detail.
+
+Calendar Flow:
+1. User opens /calendar.
+2. Month grid loads from /calendar/month.
+3. User clicks a day → side panel or modal opens.
+4. User can add entry for this date or view existing ones.
+
+============================================================
+12. MVP FEATURES
+============================================================
+
+- Register/Login
+- CRUD entries
+- Projects
+- Tags
+- Dashboard quick entry
+- Entries list with filters
+- Calendar month view (basic)
+- Clean UI
+- Deployment
+
+============================================================
+13. PHASE 2 FEATURES
+============================================================
+
+- Mood charts on dashboard
+- Streak counter
+- Weekly summary
+- Week view calendar
+- Search indexing
+- Theme toggle
+- Mobile optimized UX
+
+============================================================
+14. CURSOR BOOTSTRAP INSTRUCTIONS
+============================================================
+
+Use this design doc to scaffold a full-stack app.
+
+Backend tasks:
+- Create FastAPI project structure from this doc.
+- Implement auth via JWT.
+- Implement CRUD for entries, projects, tags.
+- Implement /calendar/month endpoint.
+- Implement insights (optional phase 2).
+- Create SQLAlchemy models + Alembic migrations.
+- Add Pydantic schemas.
+- Add tests for core endpoints.
+
+Frontend tasks:
+- Create React + TS app using Vite + Tailwind.
+- Implement pages defined above.
+- Use React Query for API calls.
+- Implement CalendarPage (month view).
+- Implement QuickEntryForm and EntryList.
+- Add protected routes (redirect if not authenticated).
+
+Follow the structure strictly, simplify when needed, and avoid unnecessary complexity.
+
+============================================================
+END OF DOCUMENT
+============================================================
