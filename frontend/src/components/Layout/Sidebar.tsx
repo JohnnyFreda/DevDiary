@@ -7,7 +7,6 @@ import {
   TagIcon,
   CalendarIcon,
   Bars3Icon,
-  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -28,24 +27,28 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   return (
     <div
-      className={`hidden md:flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-64'
+      className={`flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${
+        isCollapsed 
+          ? 'w-16' 
+          : 'w-[191px] sm:w-48 md:w-52 lg:w-56 xl:w-60 2xl:w-64'
       }`}
     >
       <div className="p-4 flex items-center justify-between">
-        {!isCollapsed && (
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dev Diary</h1>
-        )}
+        <h1
+          className={`text-2xl font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+            isCollapsed
+              ? 'max-w-0 opacity-0'
+              : 'max-w-[200px] opacity-100'
+          }`}
+        >
+          Dev Diary
+        </h1>
         <button
           onClick={onToggle}
-          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors flex-shrink-0"
           aria-label="Toggle sidebar"
         >
-          {isCollapsed ? (
-            <Bars3Icon className="h-6 w-6" />
-          ) : (
-            <XMarkIcon className="h-6 w-6" />
-          )}
+          <Bars3Icon className="h-6 w-6" />
         </button>
       </div>
       <nav className="mt-4 flex-1">
@@ -59,15 +62,35 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               to={item.href}
               className={`flex items-center ${
                 isCollapsed ? 'justify-center px-2' : 'px-4'
-              } py-3 text-sm font-medium ${
+              } py-3 text-sm font-medium transition-all duration-300 relative ${
                 isActive
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-r-2 border-blue-600 dark:border-blue-400'
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
+              style={
+                isActive
+                  ? {
+                      borderRight: '2px solid',
+                      borderRightColor: 'rgb(37 99 235)', // blue-600
+                    }
+                  : undefined
+              }
               title={isCollapsed ? item.name : undefined}
             >
-              <item.icon className={`h-5 w-5 ${!isCollapsed ? 'mr-3' : ''}`} />
-              {!isCollapsed && <span>{item.name}</span>}
+              <item.icon 
+                className={`h-5 w-5 flex-shrink-0 transition-all duration-300 ease-in-out ${
+                  !isCollapsed ? 'mr-3' : 'mr-0'
+                }`} 
+              />
+              <span
+                className={`transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                  isCollapsed
+                    ? 'max-w-0 opacity-0'
+                    : 'max-w-[200px] opacity-100'
+                }`}
+              >
+                {item.name}
+              </span>
             </Link>
           );
         })}

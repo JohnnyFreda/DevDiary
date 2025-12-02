@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
@@ -7,7 +7,25 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Start collapsed only on very small screens (< 640px), expanded otherwise
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640; // sm breakpoint
+    }
+    return false;
+  });
+
+  // Auto-collapse on very small screens when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
