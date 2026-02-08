@@ -20,14 +20,20 @@ class Settings(BaseSettings):
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
     def parse_cors_origins(cls, v):
+        if v is None:
+            return []
+        if isinstance(v, list):
+            return [str(x).strip() for x in v if str(x).strip()]
         if isinstance(v, str):
+            s = v.strip()
+            if not s:
+                return []
             try:
-                # Try to parse as JSON
-                return json.loads(v)
+                out = json.loads(s)
+                return [str(x).strip() for x in out] if isinstance(out, list) else [s]
             except json.JSONDecodeError:
-                # If not JSON, treat as comma-separated
-                return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+                return [origin.strip() for origin in s.split(",") if origin.strip()]
+        return []
     
     class Config:
         env_file = ".env"
