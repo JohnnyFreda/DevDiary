@@ -1,5 +1,4 @@
-// Mock calendar API - uses localStorage
-import { mockCalendarService } from '../services/mockData';
+import { apiClient } from './client';
 
 export interface CalendarDay {
   date: string;
@@ -19,31 +18,15 @@ export const calendarApi = {
     month: number,
     filters?: { project_id?: number; tag?: string }
   ): Promise<CalendarMonthResponse> => {
-    const data = await mockCalendarService.getMonth(year, month, filters);
-    
-    // Convert days object to array format
-    const days: CalendarDay[] = [];
-    const daysInMonth = new Date(year, month, 0).getDate();
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const dayData = data.days[day];
-      
-      if (dayData) {
-        days.push({
-          date: dateStr,
-          entry_count: dayData.entry_count || 0,
-          average_mood: dayData.mood || undefined,
-        });
-      } else {
-        days.push({
-          date: dateStr,
-          entry_count: 0,
-          average_mood: undefined,
-        });
-      }
-    }
-    
+    const params: Record<string, number | string> = { year, month };
+    if (filters?.project_id != null) params.project_id = filters.project_id;
+    if (filters?.tag != null) params.tag = filters.tag;
+    const { data } = await apiClient.get<{ year: number; month: number; days: Array<{ date: string; entry_count: number; average_mood?: number | null }> }>('/calendar/month', { params });
+    const days: CalendarDay[] = (data.days ?? []).map((d) => ({
+      date: String(d.date),
+      entry_count: d.entry_count ?? 0,
+      average_mood: d.average_mood ?? undefined,
+    }));
     return {
       year: data.year,
       month: data.month,

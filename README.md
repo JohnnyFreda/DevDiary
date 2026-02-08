@@ -73,10 +73,10 @@ cd frontend
 npm install
 ```
 
-3. Set up environment variables:
+3. Set up environment variables (optional):
 ```bash
 cp .env.example .env
-# Edit .env with your API URL (default: http://localhost:8000)
+# Leave VITE_API_URL empty for dev (proxy forwards /api to backend). For production, set to your backend URL.
 ```
 
 4. Start the development server:
@@ -84,7 +84,7 @@ cp .env.example .env
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The app will be available at `http://localhost:5173`. With the backend running and the dev proxy (or `VITE_API_URL`) configured, the frontend uses the FastAPI backend and PostgreSQL for all data; app data is no longer stored in localStorage.
 
 ## Project Structure
 

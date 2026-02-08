@@ -1,7 +1,6 @@
-// Mock entries API - uses localStorage
-import { mockEntriesService, Entry as MockEntry } from '../services/mockData';
+import { apiClient } from './client';
 
-// Attachment interface
+// Attachment interface (client-only; backend does not support yet)
 export interface Attachment {
   type: 'link' | 'document' | 'reference';
   title: string;
@@ -59,62 +58,85 @@ export interface EntryFilters {
   date_to?: string;
 }
 
-// Helper to convert mock entry to API entry format
-const convertEntry = async (mockEntry: MockEntry): Promise<Entry> => {
-  const mockData = await import('../services/mockData');
-  const tags = await mockData.mockTagsService.getAll();
-  
-  // Convert tag strings to tag objects
-  const entryTags = mockEntry.tags
-    .map((tagName) => {
-      const tag = tags.find((t) => t.name === tagName);
-      return tag ? { id: tag.id, name: tag.name } : null;
-    })
-    .filter((t): t is { id: number; name: string } => t !== null);
-
-  // Get project if exists
-  let project;
-  if (mockEntry.project_id) {
-    const projects = await mockData.mockProjectsService.getAll();
-    const proj = projects.find((p) => p.id === mockEntry.project_id);
-    if (proj) {
-      project = {
-        id: proj.id,
-        name: proj.name,
-        description: proj.description || undefined,
-      };
-    }
-  }
-
+function normalizeEntry(raw: {
+  id: number;
+  user_id: number;
+  project_id?: number | null;
+  date: string;
+  title?: string | null;
+  body?: string | null;
+  looking_ahead?: string | null;
+  mood: number;
+  focus_score?: number | null;
+  created_at: string;
+  updated_at: string;
+  tags?: Array<{ id: number; name: string }>;
+  project?: { id: number; name: string; description?: string | null } | null;
+}): Entry {
   return {
-    ...mockEntry,
-    tags: entryTags,
-    project,
+    id: raw.id,
+    user_id: raw.user_id,
+    project_id: raw.project_id ?? undefined,
+    date: String(raw.date),
+    title: raw.title ?? undefined,
+    body: raw.body ?? undefined,
+    looking_ahead: raw.looking_ahead ?? undefined,
+    mood: raw.mood,
+    focus_score: raw.focus_score ?? undefined,
+    created_at: String(raw.created_at),
+    updated_at: String(raw.updated_at),
+    tags: raw.tags ?? [],
+    project: raw.project ? { id: raw.project.id, name: raw.project.name, description: raw.project.description ?? undefined } : undefined,
   };
-};
+}
 
 export const entriesApi = {
   getAll: async (filters?: EntryFilters): Promise<Entry[]> => {
-    const mockEntries = await mockEntriesService.getAll(filters);
-    return Promise.all(mockEntries.map(convertEntry));
+    const params: Record<string, string | number> = {};
+    if (filters?.project_id != null) params.project_id = filters.project_id;
+    if (filters?.tag != null) params.tag = filters.tag;
+    if (filters?.search != null) params.search = filters.search;
+    if (filters?.date_from != null) params.date_from = filters.date_from;
+    if (filters?.date_to != null) params.date_to = filters.date_to;
+    const { data } = await apiClient.get<Entry[]>('/entries', { params });
+    return Array.isArray(data) ? data.map(normalizeEntry) : [];
   },
 
   getById: async (id: number): Promise<Entry> => {
-    const mockEntry = await mockEntriesService.getById(id);
-    return convertEntry(mockEntry);
+    const { data } = await apiClient.get<Entry>(`/entries/${id}`);
+    return normalizeEntry(data);
   },
 
   create: async (data: EntryCreate): Promise<Entry> => {
-    const mockEntry = await mockEntriesService.create(data);
-    return convertEntry(mockEntry);
+    const body = {
+      date: data.date,
+      title: data.title ?? null,
+      body: data.body ?? null,
+      looking_ahead: data.looking_ahead ?? null,
+      mood: data.mood != null && data.mood !== null ? Number(data.mood) : 1,
+      focus_score: data.focus_score ?? null,
+      project_id: data.project_id ?? null,
+      tags: data.tags ?? [],
+    };
+    const { data: created } = await apiClient.post<Entry>('/entries', body);
+    return normalizeEntry(created);
   },
 
   update: async (id: number, data: EntryUpdate): Promise<Entry> => {
-    const mockEntry = await mockEntriesService.update(id, data);
-    return convertEntry(mockEntry);
+    const body: Record<string, unknown> = {};
+    if (data.date !== undefined) body.date = data.date;
+    if (data.title !== undefined) body.title = data.title;
+    if (data.body !== undefined) body.body = data.body;
+    if (data.looking_ahead !== undefined) body.looking_ahead = data.looking_ahead;
+    if (data.mood !== undefined) body.mood = data.mood;
+    if (data.focus_score !== undefined) body.focus_score = data.focus_score;
+    if (data.project_id !== undefined) body.project_id = data.project_id;
+    if (data.tags !== undefined) body.tags = data.tags;
+    const { data: updated } = await apiClient.put<Entry>(`/entries/${id}`, body);
+    return normalizeEntry(updated);
   },
 
   delete: async (id: number): Promise<void> => {
-    return mockEntriesService.delete(id);
+    await apiClient.delete(`/entries/${id}`);
   },
 };

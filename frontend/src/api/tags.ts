@@ -1,7 +1,9 @@
-// Mock tags API - uses localStorage
-import { mockTagsService, Tag } from '../services/mockData';
+import { apiClient } from './client';
 
-export type { Tag };
+export interface Tag {
+  id: number;
+  name: string;
+}
 
 export interface TagCreate {
   name: string;
@@ -9,14 +11,16 @@ export interface TagCreate {
 
 export const tagsApi = {
   getAll: async (): Promise<Tag[]> => {
-    return mockTagsService.getAll();
+    const { data } = await apiClient.get<Tag[]>('/tags');
+    return Array.isArray(data) ? data : [];
   },
 
   create: async (data: TagCreate): Promise<Tag> => {
-    return mockTagsService.create(data.name);
+    const { data: created } = await apiClient.post<Tag>('/tags', { name: data.name });
+    return created;
   },
 
   delete: async (id: number): Promise<void> => {
-    return mockTagsService.delete(id);
+    await apiClient.delete(`/tags/${id}`);
   },
 };

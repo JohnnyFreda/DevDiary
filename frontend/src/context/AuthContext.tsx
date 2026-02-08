@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '../api/auth';
-import { mockAuth } from '../services/mockData';
+import { User, authApi } from '../api/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -31,13 +30,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already authenticated on mount
+    // Restore session: refresh token (cookie) → access token → getMe
     const checkAuth = async () => {
       try {
-        const userData = await mockAuth.getMe();
+        await authApi.refresh();
+        const userData = await authApi.getMe();
         setUser(userData);
-      } catch (error) {
-        // Not authenticated - this is normal
+      } catch {
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -47,18 +46,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    await mockAuth.login({ email, password });
-    const userData = await mockAuth.getMe();
+    await authApi.login({ email, password });
+    const userData = await authApi.getMe();
     setUser(userData);
   };
 
   const register = async (email: string, password: string) => {
-    await mockAuth.register({ email, password });
+    await authApi.register({ email, password });
     await login(email, password);
   };
 
   const logout = async () => {
-    await mockAuth.logout();
+    await authApi.logout();
     setUser(null);
   };
 
@@ -68,23 +67,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const devPassword = 'dev123';
 
       try {
-        // Try to register (will fail if exists, that's ok)
         try {
-          await mockAuth.register({ email: devEmail, password: devPassword });
-        } catch (e: any) {
-          // User might already exist, that's fine
-          if (e.message.includes('already registered')) {
-            // Continue to login
-          } else {
+          await authApi.register({ email: devEmail, password: devPassword });
+        } catch (e: unknown) {
+          const err = e as { response?: { data?: { detail?: string } } };
+          if (err.response?.data?.detail !== 'Email already registered') {
             throw e;
           }
         }
-
-        // Login with dev credentials
         await login(devEmail, devPassword);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Dev bypass error:', error);
-        throw new Error(`Dev bypass failed: ${error.message || 'Unknown error'}`);
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        throw new Error(`Dev bypass failed: ${msg}`);
       }
     } else {
       throw new Error('Dev bypass is only available in development mode');

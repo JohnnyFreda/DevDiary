@@ -1,7 +1,12 @@
-// Mock projects API - uses localStorage
-import { mockProjectsService, Project } from '../services/mockData';
+import { apiClient } from './client';
 
-export type { Project };
+export interface Project {
+  id: number;
+  user_id?: number;
+  name: string;
+  description?: string | null;
+  created_at: string;
+}
 
 export interface ProjectCreate {
   name: string;
@@ -15,18 +20,27 @@ export interface ProjectUpdate {
 
 export const projectsApi = {
   getAll: async (): Promise<Project[]> => {
-    return mockProjectsService.getAll();
+    const { data } = await apiClient.get<Project[]>('/projects');
+    return Array.isArray(data) ? data.map((p) => ({ ...p, created_at: String(p.created_at) })) : [];
   },
 
   create: async (data: ProjectCreate): Promise<Project> => {
-    return mockProjectsService.create(data);
+    const { data: created } = await apiClient.post<Project>('/projects', {
+      name: data.name,
+      description: data.description ?? null,
+    });
+    return { ...created, created_at: String(created.created_at) };
   },
 
   update: async (id: number, data: ProjectUpdate): Promise<Project> => {
-    return mockProjectsService.update(id, data);
+    const body: Record<string, unknown> = {};
+    if (data.name !== undefined) body.name = data.name;
+    if (data.description !== undefined) body.description = data.description;
+    const { data: updated } = await apiClient.put<Project>(`/projects/${id}`, body);
+    return { ...updated, created_at: String(updated.created_at) };
   },
 
   delete: async (id: number): Promise<void> => {
-    return mockProjectsService.delete(id);
+    await apiClient.delete(`/projects/${id}`);
   },
 };

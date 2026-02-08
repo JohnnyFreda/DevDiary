@@ -1,5 +1,4 @@
-// Mock insights API - uses localStorage
-import { mockInsightsService } from '../services/mockData';
+import { apiClient } from './client';
 
 export interface InsightsSummary {
   total_entries: number;
@@ -15,21 +14,20 @@ export interface MoodTrendData {
 
 export const insightsApi = {
   getSummary: async (): Promise<InsightsSummary> => {
-    const data = await mockInsightsService.getSummary();
+    const { data } = await apiClient.get<{ total_entries: number; average_mood?: number | null; streak: number }>('/insights/summary');
     return {
-      total_entries: data.entry_count,
-      average_mood: data.average_mood || undefined,
-      streak: data.streak,
+      total_entries: data.total_entries ?? 0,
+      average_mood: data.average_mood ?? undefined,
+      streak: data.streak ?? 0,
     };
   },
 
   getMoodTrend: async (days: number = 30): Promise<MoodTrendData[]> => {
-    const data = await mockInsightsService.getMoodTrend(days);
-    // Convert to expected format
-    return data.map((item) => ({
-      date: item.date,
-      average_mood: item.mood,
-      entry_count: 1,
+    const { data } = await apiClient.get<Array<{ date: string; average_mood?: number | null; entry_count: number }>>('/insights/mood-trend', { params: { days } });
+    return (Array.isArray(data) ? data : []).map((item) => ({
+      date: String(item.date),
+      average_mood: item.average_mood ?? undefined,
+      entry_count: item.entry_count ?? 0,
     }));
   },
 };
