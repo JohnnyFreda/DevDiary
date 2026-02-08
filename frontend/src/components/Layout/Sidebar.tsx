@@ -47,7 +47,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         </h1>
         <button
           onClick={onToggle}
-          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors flex-shrink-0"
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
           aria-label="Toggle sidebar"
         >
           <Bars3Icon className="h-6 w-6" />
@@ -64,19 +64,11 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               to={item.href}
               className={`flex items-center ${
                 isCollapsed ? 'justify-center px-2' : 'px-4'
-              } py-3 text-sm font-medium transition-all duration-300 relative ${
+              } py-3.5 text-sm font-medium transition-all duration-300 relative border-l-2 ${
                 isActive
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'bg-violet-500/10 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-600'
+                  : 'border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
               }`}
-              style={
-                isActive
-                  ? {
-                      borderRight: '2px solid',
-                      borderRightColor: 'rgb(37 99 235)', // blue-600
-                    }
-                  : undefined
-              }
               title={isCollapsed ? item.name : undefined}
             >
               <item.icon 

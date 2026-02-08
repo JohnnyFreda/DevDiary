@@ -6,7 +6,17 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Plus Jakarta Sans', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
+      colors: {
+        accent: {
+          DEFAULT: '#8b5cf6',
+          hover: '#7c3aed',
+        },
+      },
+    },
   },
   plugins: [],
 }

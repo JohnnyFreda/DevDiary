@@ -25,17 +25,17 @@ export default function TagInput({ value, onChange }: TagInputProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 min-h-[42px]">
+    <div className="flex flex-wrap gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 min-h-[42px] focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-500 dark:focus-within:ring-violet-500 dark:focus-within:border-violet-500">
       {value.map((tag) => (
         <span
           key={tag}
-          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-sm"
+          className="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 rounded-lg text-sm"
         >
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="hover:text-blue-600 dark:hover:text-blue-300"
+              className="hover:text-violet-600 dark:hover:text-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded"
             >
               ×
             </button>

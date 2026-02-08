@@ -1,14 +1,14 @@
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">Settings</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Manage your preferences and account settings
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+      <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-6 space-y-6">
         <div>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             General Settings
@@ -23,7 +23,7 @@ export default function SettingsPage() {
                   Choose your preferred color scheme
                 </p>
               </div>
-              <select className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:focus:ring-violet-500 dark:focus:border-violet-500">
                 <option>System</option>
                 <option>Light</option>
                 <option>Dark</option>

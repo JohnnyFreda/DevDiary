@@ -50,8 +50,10 @@ def calculate_streak(db: Session, user_id: int) -> int:
 
 def get_mood_trend(db: Session, user_id: int, days: int = 30) -> List[Dict]:
     """Get mood trend data for the last N days."""
-    end_date = date.today()
-    start_date = end_date - timedelta(days=days)
+    today = date.today()
+    # Include up to "tomorrow" so entries dated "today" in timezones ahead of server are included
+    end_date = today + timedelta(days=1)
+    start_date = today - timedelta(days=days)
     
     results = db.query(
         Entry.date,

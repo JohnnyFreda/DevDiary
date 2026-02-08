@@ -19,9 +19,9 @@ export default function MoodSelector({ value, onChange }: MoodSelectorProps) {
           key={mood.value}
           type="button"
           onClick={() => onChange(mood.value)}
-          className={`flex-1 py-2 px-3 rounded-md border-2 transition ${
+          className={`flex-1 py-2 px-3 rounded-lg border-2 transition duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
             value === mood.value
-              ? 'border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+              ? 'border-violet-600 dark:border-violet-400 bg-violet-50 dark:bg-violet-900/20'
               : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
           }`}
           title={mood.description}

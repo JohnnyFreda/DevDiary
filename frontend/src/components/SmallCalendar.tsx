@@ -52,14 +52,14 @@ export default function SmallCalendar() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+    <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           {monthNames[month - 1]} {year}
         </h3>
         <Link
           to="/calendar"
-          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+          className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
         >
           View Full
         </Link>
@@ -77,22 +77,22 @@ export default function SmallCalendar() {
         {days.map((day, index) => (
           <div
             key={index}
-            className={`aspect-square p-1 text-xs border border-gray-200 dark:border-gray-700 rounded ${
+            className={`aspect-square p-1 text-xs border border-gray-200 dark:border-gray-700 rounded-lg ${
               day ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700' : ''
-            } ${day && isToday(day.date) ? 'ring-2 ring-blue-500' : ''} ${day ? getMoodColor(day.average_mood) : ''}`}
+            } ${day && isToday(day.date) ? 'ring-2 ring-violet-500' : ''} ${day ? getMoodColor(day.average_mood) : ''}`}
             title={day ? `${day.date}: ${day.entry_count} ${day.entry_count === 1 ? 'entry' : 'entries'}` : ''}
           >
             {day && (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className={`text-xs font-medium ${
                   isToday(day.date) 
-                    ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                    ? 'text-violet-600 dark:text-violet-400 font-bold' 
                     : 'text-gray-900 dark:text-white'
                 }`}>
                   {new Date(day.date).getDate()}
                 </div>
                 {day.entry_count > 0 && (
-                  <div className="w-1 h-1 rounded-full bg-blue-500 mt-0.5" />
+                  <div className="w-1 h-1 rounded-full bg-violet-500 mt-0.5" />
                 )}
               </div>
             )}

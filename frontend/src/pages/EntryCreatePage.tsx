@@ -19,8 +19,8 @@ export default function EntryCreatePage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">New Entry</h1>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">New Entry</h1>
+      <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-8">
         <EntryForm
           onSubmit={async (data) => {
             await createMutation.mutateAsync(data as EntryCreate);

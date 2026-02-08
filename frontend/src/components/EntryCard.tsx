@@ -9,7 +9,7 @@ export default function EntryCard({ entry }: EntryCardProps) {
   return (
     <Link
       to={`/entries/${entry.id}`}
-      className="block bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition"
+      className="block rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-6 hover:shadow-md hover:border-l-4 hover:border-l-violet-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
     >
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -31,7 +31,7 @@ export default function EntryCard({ entry }: EntryCardProps) {
           Mood: {entry.mood}/5
         </span>
         {entry.project && (
-          <span className="text-blue-600 dark:text-blue-400">
+          <span className="text-violet-600 dark:text-violet-400">
             {entry.project.name}
           </span>
         )}
@@ -40,7 +40,7 @@ export default function EntryCard({ entry }: EntryCardProps) {
             {entry.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs"
+                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 {tag.name}
               </span>

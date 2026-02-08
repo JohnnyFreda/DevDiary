@@ -23,7 +23,17 @@ export default function EntryDetailPage() {
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="max-w-4xl mx-auto space-y-4">
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+        <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 p-8 space-y-4">
+          <div className="h-8 w-2/3 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 w-1/2 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+      </div>
+    );
   }
 
   if (!entry) {
@@ -35,14 +45,14 @@ export default function EntryDetailPage() {
       <div className="flex justify-between items-center">
         <Link
           to="/entries"
-          className="text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
         >
           ← Back to entries
         </Link>
         <div className="flex gap-4">
           <Link
             to={`/entries/${id}/edit`}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white rounded-lg transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
             Edit
           </Link>
@@ -52,23 +62,23 @@ export default function EntryDetailPage() {
                 deleteMutation.mutate();
               }
             }}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
             Delete
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+      <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             {entry.title || 'Untitled Entry'}
           </h1>
           <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <span>{new Date(entry.date).toLocaleDateString()}</span>
             <span>Mood: {entry.mood}/5</span>
             {entry.project && (
-              <span className="text-blue-600 dark:text-blue-400">
+              <span className="text-violet-600 dark:text-violet-400">
                 {entry.project.name}
               </span>
             )}

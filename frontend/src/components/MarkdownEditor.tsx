@@ -83,7 +83,7 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
   return (
     <div 
       ref={editorRef}
-      className="w-full" 
+      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-500 dark:focus-within:ring-violet-500 dark:focus-within:border-violet-500 overflow-hidden"
       data-color-mode="light"
       onPaste={(e) => {
         // This will be handled by the useEffect listener
@@ -93,9 +93,9 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
         <button
           type="button"
           onClick={() => setViewMode('edit')}
-          className={`px-3 py-1 text-sm rounded ${
+          className={`px-3 py-1 text-sm rounded focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
             viewMode === 'edit'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-violet-600 text-white'
               : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -104,9 +104,9 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
         <button
           type="button"
           onClick={() => setViewMode('preview')}
-          className={`px-3 py-1 text-sm rounded ${
+          className={`px-3 py-1 text-sm rounded focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
             viewMode === 'preview'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-violet-600 text-white'
               : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -115,9 +115,9 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
         <button
           type="button"
           onClick={() => setViewMode('split')}
-          className={`px-3 py-1 text-sm rounded ${
+          className={`px-3 py-1 text-sm rounded focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
             viewMode === 'split'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-violet-600 text-white'
               : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
           }`}
         >

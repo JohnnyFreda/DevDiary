@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { projectsApi, Project, ProjectCreate } from '../api/projects';
 import { entriesApi, Entry } from '../api/entries';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import Skeleton from '../components/ui/Skeleton';
 
 export default function ProjectsPage() {
   const [isCreating, setIsCreating] = useState(false);
@@ -51,19 +52,19 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">Projects</h1>
         <button
           onClick={() => setIsCreating(!isCreating)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
+          className="bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
         >
           {isCreating ? 'Cancel' : 'New Project'}
         </button>
       </div>
 
       {isCreating && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create Project</h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
@@ -75,7 +76,7 @@ export default function ProjectsPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:focus:ring-violet-500 dark:focus:border-violet-500"
               />
             </div>
             <div>
@@ -86,13 +87,13 @@ export default function ProjectsPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:focus:ring-violet-500 dark:focus:border-violet-500"
               />
             </div>
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
+              className="bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             >
               {createMutation.isPending ? 'Creating...' : 'Create'}
             </button>
@@ -101,7 +102,15 @@ export default function ProjectsPage() {
       )}
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 p-6 space-y-3">
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+          ))}
+        </div>
       ) : projects && projects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project: Project) => {
@@ -111,7 +120,7 @@ export default function ProjectsPage() {
             return (
               <div
                 key={project.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden"
+                className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 overflow-hidden"
               >
                 <div
                   className="p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -156,7 +165,7 @@ export default function ProjectsPage() {
                           <Link
                             key={entry.id}
                             to={`/entries/${entry.id}`}
-                            className="block p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                            className="block p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-violet-500 dark:hover:border-violet-400 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="flex items-start justify-between mb-1">
@@ -201,9 +210,16 @@ export default function ProjectsPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                        No entries for this project yet.
-                      </p>
+                      <div className="text-center py-6">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">No entries for this project yet.</p>
+                        <Link
+                          to="/entries/new"
+                          className="inline-flex items-center justify-center px-3 py-1.5 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Add entry
+                        </Link>
+                      </div>
                     )}
                   </div>
                 )}
@@ -212,8 +228,15 @@ export default function ProjectsPage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          No projects yet. Create your first project!
+        <div className="text-center py-12">
+          <p className="text-gray-600 dark:text-gray-400 mb-2">No projects yet.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">Group entries by project.</p>
+          <button
+            onClick={() => setIsCreating(true)}
+            className="inline-flex items-center justify-center px-4 py-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-medium rounded-lg transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            Create your first project
+          </button>
         </div>
       )}
     </div>

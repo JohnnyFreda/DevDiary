@@ -25,7 +25,16 @@ export default function EntryEditPage() {
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="max-w-4xl mx-auto space-y-4">
+        <div className="h-8 w-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+        <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 p-8 space-y-6">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-10 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (!entry) {
@@ -34,8 +43,8 @@ export default function EntryEditPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Edit Entry</h1>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">Edit Entry</h1>
+      <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-8">
         <EntryForm
           entry={entry}
           onSubmit={async (data) => {

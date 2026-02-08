@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { calendarApi, CalendarDay } from '../api/calendar';
 import { entriesApi } from '../api/entries';
@@ -90,9 +91,9 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">Calendar</h1>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -114,12 +115,12 @@ export default function CalendarPage() {
               →
             </button>
           </div>
-          <button
-            onClick={goToToday}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-          >
-            Today
-          </button>
+            <button
+              onClick={goToToday}
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            >
+              Today
+            </button>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -195,7 +196,7 @@ export default function CalendarPage() {
       </div>
 
       {selectedDate && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 ring-1 ring-gray-200/50 dark:ring-white/5 p-6">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Entries for {new Date(selectedDate).toLocaleDateString()}
           </h3>
@@ -216,7 +217,15 @@ export default function CalendarPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400">No entries for this date.</p>
+            <div className="text-center py-8">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No entries for this date.</p>
+              <Link
+                to="/entries/new"
+                className="inline-flex items-center justify-center px-4 py-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-medium rounded-lg text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+              >
+                Add entry
+              </Link>
+            </div>
           )}
         </div>
       )}

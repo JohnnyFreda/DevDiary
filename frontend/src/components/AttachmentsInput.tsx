@@ -71,7 +71,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
         <button
           type="button"
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+          className="flex items-center gap-1 text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
         >
           <PlusIcon className="h-4 w-4" />
           Add
@@ -79,7 +79,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
       </div>
 
       {showAddForm && (
-        <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900/50 space-y-3">
+        <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 space-y-3">
           <div>
             <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Type
@@ -87,7 +87,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
             <select
               value={newAttachment.type}
               onChange={(e) => setNewAttachment({ ...newAttachment, type: e.target.value as Attachment['type'] })}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             >
               <option value="link">Link</option>
               <option value="document">Document</option>
@@ -104,7 +104,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
               value={newAttachment.url}
               onChange={(e) => setNewAttachment({ ...newAttachment, url: e.target.value })}
               placeholder="https://example.com"
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
 
@@ -117,7 +117,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
               value={newAttachment.title}
               onChange={(e) => setNewAttachment({ ...newAttachment, title: e.target.value })}
               placeholder="Display name"
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
 
@@ -130,7 +130,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
               onChange={(e) => setNewAttachment({ ...newAttachment, description: e.target.value })}
               placeholder="Brief description"
               rows={2}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
 
@@ -139,7 +139,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
               type="button"
               onClick={handleAdd}
               disabled={!newAttachment.url.trim()}
-              className="flex-1 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-3 py-1.5 text-sm bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             >
               Add Resource
             </button>
@@ -149,7 +149,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
                 setShowAddForm(false);
                 setNewAttachment({ type: 'link', title: '', url: '', description: '' });
               }}
-              className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             >
               Cancel
             </button>
@@ -162,7 +162,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
           {value.map((attachment, index) => (
             <div
               key={index}
-              className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800"
+              className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             >
               <div className="flex-shrink-0 mt-0.5 text-gray-500 dark:text-gray-400">
                 {getTypeIcon(attachment.type)}
@@ -178,7 +178,7 @@ export default function AttachmentsInput({ value, onChange }: AttachmentsInputPr
                         href={attachment.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline truncate"
+                        className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:underline truncate"
                       >
                         {attachment.title}
                       </a>
