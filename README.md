@@ -2,6 +2,12 @@
 
 A full-stack developer diary application for logging daily progress, tracking mood, projects, and tags.
 
+## Live Demo
+
+**[Try the app →](https://dev-diary-psi.vercel.app)**
+
+Use **Continue as guest** to explore without signing up. The demo may take a moment to load after inactivity (free-tier backend spin-up).
+
 ## Features
 
 - User authentication with JWT (access + refresh tokens)
@@ -127,14 +133,19 @@ pytest
 
 ## Deployment
 
-### Backend
-- Deploy to Render, Railway, or similar
-- Set up managed PostgreSQL database
-- Configure environment variables
+The live demo uses a fully free stack:
 
-### Frontend
-- Deploy to Vercel, Netlify, or similar
-- Set `VITE_API_URL` environment variable to your backend URL
+| Component | Service | Notes |
+|-----------|---------|--------|
+| Frontend | [Vercel](https://vercel.com) | Root directory: `frontend`. Env: `VITE_API_URL` = backend URL. |
+| Backend | [Render](https://render.com) | Web Service, root: `backend`. Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Python 3.12 (`runtime.txt`). |
+| Database | [Neon](https://neon.tech) | PostgreSQL. Connection string as `DATABASE_URL` on Render. |
+
+**Backend env (Render):** `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS` (your Vercel frontend URL, e.g. `https://dev-diary-psi.vercel.app`).
+
+**Frontend env (Vercel):** `VITE_API_URL` = your Render backend URL only (no path, no trailing slash).
+
+Push to `main` to trigger automatic redeploys on both Vercel and Render. For step-by-step hosting instructions, see [HOSTING_LIVE_DEMO.md](HOSTING_LIVE_DEMO.md) (if present in the repo).
 
 ## License
 
