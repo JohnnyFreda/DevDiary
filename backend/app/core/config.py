@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
     # CORS: read from env as plain string to avoid pydantic parsing; expose as list via computed field
-    _cors_origins_raw: str = Field(
+    cors_origins_raw: str = Field(
         default="http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173",
         validation_alias="CORS_ORIGINS",
     )
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def CORS_ORIGINS(self) -> List[str]:
-        return _parse_cors_origins(self._cors_origins_raw)
+        return _parse_cors_origins(self.cors_origins_raw)
     
     class Config:
         env_file = ".env"
