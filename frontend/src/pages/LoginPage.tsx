@@ -7,9 +7,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, devBypass } = useAuth();
+  const { login, guestLogin } = useAuth();
   const navigate = useNavigate();
-  const isDev = import.meta.env.DEV;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,31 +96,32 @@ export default function LoginPage() {
           </div>
         </form>
 
-        {isDev && (
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={async () => {
-                setIsLoading(true);
-                try {
-                  await devBypass();
-                  navigate('/dashboard');
-                } catch (err: any) {
-                  setError('Dev bypass failed. Check console for details.');
-                  console.error('Dev bypass error:', err);
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-              disabled={isLoading}
-              className="w-full flex justify-center py-2 px-4 border border-yellow-300 dark:border-yellow-600 rounded-md shadow-sm text-sm font-medium text-yellow-800 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Bypassing...' : '🔧 Dev: Skip Login'}
-            </button>
-            <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
-              Development mode only
-            </p>
-          </div>
-        )}
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            onClick={async () => {
+              setError('');
+              setIsLoading(true);
+              try {
+                await guestLogin();
+                navigate('/dashboard');
+              } catch (err: any) {
+                const errorMessage = err.message || err.response?.data?.detail || 'Guest login failed';
+                setError(errorMessage);
+                console.error('Guest login error:', err);
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            disabled={isLoading}
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 transition-colors duration-200 active:scale-[0.98]"
+          >
+            {isLoading ? 'Signing in...' : 'Continue as guest'}
+          </button>
+          <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
+            Try the app without an account (shared demo data).
+          </p>
+        </div>
       </div>
     </div>
   );

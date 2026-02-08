@@ -7,7 +7,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  devBypass: () => Promise<void>;
+  guestLogin: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -61,28 +61,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
-  const devBypass = async () => {
-    if (import.meta.env.DEV) {
-      const devEmail = 'dev@example.com';
-      const devPassword = 'dev123';
+  const guestLogin = async () => {
+    const guestEmail = 'guest@example.com';
+    const guestPassword = 'guest123';
 
+    try {
       try {
-        try {
-          await authApi.register({ email: devEmail, password: devPassword });
-        } catch (e: unknown) {
-          const err = e as { response?: { data?: { detail?: string } } };
-          if (err.response?.data?.detail !== 'Email already registered') {
-            throw e;
-          }
+        await authApi.register({ email: guestEmail, password: guestPassword });
+      } catch (e: unknown) {
+        const err = e as { response?: { data?: { detail?: string } } };
+        if (err.response?.data?.detail !== 'Email already registered') {
+          throw e;
         }
-        await login(devEmail, devPassword);
-      } catch (error: unknown) {
-        console.error('Dev bypass error:', error);
-        const msg = error instanceof Error ? error.message : 'Unknown error';
-        throw new Error(`Dev bypass failed: ${msg}`);
       }
-    } else {
-      throw new Error('Dev bypass is only available in development mode');
+      await login(guestEmail, guestPassword);
+    } catch (error: unknown) {
+      console.error('Guest login error:', error);
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Guest login failed: ${msg}`);
     }
   };
 
@@ -94,7 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         register,
         logout,
-        devBypass,
+        guestLogin,
         isAuthenticated: !!user,
       }}
     >
