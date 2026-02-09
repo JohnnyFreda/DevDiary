@@ -14,7 +14,10 @@ import CalendarPage from './pages/CalendarPage';
 import SettingsPage from './pages/SettingsPage';
 import Layout from './components/Layout/Layout';
 import LookingAheadReminder from './components/LookingAheadReminder';
+import GuestNoticeModal, { isGuestUser } from './components/GuestNoticeModal';
 import Skeleton from './components/ui/Skeleton';
+
+const GUEST_NOTICE_SESSION_KEY = 'guestNoticeDismissed';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,8 +41,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [showReminder, setShowReminder] = useState(false);
+  const [showGuestNotice, setShowGuestNotice] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -49,17 +53,35 @@ function AppContent() {
     // Check if reminder was already dismissed today
     const today = new Date().toISOString().split('T')[0];
     const dismissedDate = localStorage.getItem('lookingAheadReminderDismissed');
-    
+
     // Show reminder if it hasn't been dismissed today
     if (dismissedDate !== today) {
       setShowReminder(true);
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return;
+    }
+    if (!isGuestUser(user.email)) {
+      return;
+    }
+    const dismissed = sessionStorage.getItem(GUEST_NOTICE_SESSION_KEY);
+    if (!dismissed) {
+      setShowGuestNotice(true);
+    }
+  }, [isAuthenticated, user]);
+
   const handleDismissReminder = () => {
     const today = new Date().toISOString().split('T')[0];
     localStorage.setItem('lookingAheadReminderDismissed', today);
     setShowReminder(false);
+  };
+
+  const handleDismissGuestNotice = () => {
+    sessionStorage.setItem(GUEST_NOTICE_SESSION_KEY, '1');
+    setShowGuestNotice(false);
   };
 
   return (
@@ -91,6 +113,9 @@ function AppContent() {
       </Routes>
       {showReminder && isAuthenticated && (
         <LookingAheadReminder onDismiss={handleDismissReminder} />
+      )}
+      {showGuestNotice && (
+        <GuestNoticeModal onDismiss={handleDismissGuestNotice} />
       )}
     </>
   );
